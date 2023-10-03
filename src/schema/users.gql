@@ -1,9 +1,12 @@
 type Mutation {
   createUsersMutation(input: UsersInput): Boolean
+  updateUserMutation(id: Int!, input: UsersInput): Boolean
+  removeUserMutation(id: Int!): Boolean
   signIn(input: SignInInput): UserToken
 }
 type Query {
   users: [Users]
+  user(id: Int!): Users
 }
 input UsersInput {
   id: Int
