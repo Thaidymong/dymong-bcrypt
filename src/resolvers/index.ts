@@ -4,11 +4,13 @@ import SignInMutation from "./Users/Mutation/SignInMutation";
 import UpdateUsersMutation from "./Users/Mutation/UpdateUsersMutation";
 import { GetAllUsers } from "./Users/Query/GetAllUsers";
 import GetUserById from "./Users/Query/GetUserById";
+import MeQuery from "./Users/Query/MeQuery";
 
 export const Resolvers = {
   Query: {
     users: GetAllUsers,
     user: GetUserById,
+    me: MeQuery,
   },
   Mutation: {
     createUsersMutation: CreateUsersMutation,

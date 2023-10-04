@@ -1,28 +1,64 @@
-import express, { Request, Response } from "express";
-import * as pgk from "package.json";
-import bodyParser from "body-parser";
+import express from "express";
+import http from "http";
+import dotenv from "dotenv";
 import { ApolloServer } from "@apollo/server";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "@apollo/server-plugin-landing-page-graphql-playground";
+import cors from "cors";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { graphqlUploadExpress } from "graphql-upload-minimal";
 import loadMergeSchema from "./libs/loadMergedSchema";
 import { Resolvers } from "./resolvers";
-import { expressMiddleware } from "@apollo/server/express4";
-import cors from "cors";
+import { createApolloContext } from "./context/createApolloContext";
+import { errorHandler } from "./context/errorHandler";
 
-async function CreateAppolloServer() {
+dotenv.config();
+
+async function startApolloServer() {
+  const PORT = process.env.PORT || 8000;
   const app = express();
-  
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  const server = new ApolloServer({
-    typeDefs:loadMergeSchema,
-    resolvers:Resolvers,
-  })
-  
-  await server.start();
-  app.use("/dymong",cors<cors.CorsRequest>(),express.json(),expressMiddleware(server, {}));
+  const httpServer = http.createServer(app);
+  const context: any = createApolloContext();
 
-  app.listen({ port: 8080 }, () => {
-    console.log("Server run at port 8080");
+  const schema = makeExecutableSchema({
+    typeDefs: loadMergeSchema,
+    resolvers: Resolvers,
+  });
+
+  const server = new ApolloServer({
+    schema,
+    introspection: true,
+    csrfPrevention: false, // true in production
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      process.env.NODE_ENV === "production"
+        ? ApolloServerPluginLandingPageGraphQLPlayground()
+        : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
+    ],
+    formatError: errorHandler,
+  });
+
+  await server.start();
+
+  app.use(graphqlUploadExpress());
+  app.set("trust proxy", "loopback");
+
+  app.use(
+    "/graphql",
+    cors<cors.CorsRequest>(),
+    express.json(),
+    expressMiddleware(server, {
+      context,
+    })
+  );
+
+  await new Promise<void>((resolve) => {
+    console.log(`🚀 Query endpoint ready at http://localhost:${PORT}/graphql`);
+    return httpServer.listen({ port: PORT }, resolve);
   });
 }
 
-CreateAppolloServer();
+startApolloServer();
