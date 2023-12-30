@@ -3,6 +3,8 @@ type Mutation {
   adminLogin(input: LoginInput): AdminToken
 }
 type Query{
+  admins: [Admins]
+  admin(id: Int!): Admins
   adminMe: Admins
 }
 
@@ -19,6 +21,7 @@ input LoginInput{
   email: String
   password: String
 }
+
 type AdminToken{
   token: String!
 }

@@ -1,6 +1,8 @@
 import { CreateAdminMeMutation } from "./Admin/Mutation/CreateAdminMeMutation";
 import LoginAdmin from "./Admin/Mutation/LoginAdminMe";
 import AdminMeQuery from "./Admin/Query/AdminMeQuery";
+import GetAdminById from "./Admin/Query/GetAdminById";
+import { GetAllAdmins } from "./Admin/Query/GetAllAdmins";
 import { CreateUsersMutation } from "./Users/Mutation/CreateUsersMutation";
 import { RemoveUserMutation } from "./Users/Mutation/RemoveUserMutation";
 import SignInMutation from "./Users/Mutation/SignInMutation";
@@ -14,6 +16,8 @@ export const Resolvers = {
     users: GetAllUsers,
     user: GetUserById,
     me: MeQuery,
+    admins: GetAllAdmins,
+    admin: GetAdminById,
     adminMe: AdminMeQuery,
   },
   Mutation: {

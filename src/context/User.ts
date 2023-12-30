@@ -1,6 +1,7 @@
 export interface User {
   id: number;
 }
-export interface Admins {
+
+export interface Admin{
   id: number;
 }

@@ -1,5 +1,5 @@
 import { Knex } from "knex";
-import { Admins, User } from "./User";
+import { Admin, User } from "./User";
 
 export default interface ContextType {
   knex: {
@@ -7,5 +7,5 @@ export default interface ContextType {
   };
   token: string;
   user: User;
-  admin?: Admins;
+  admin: Admin,
 }
