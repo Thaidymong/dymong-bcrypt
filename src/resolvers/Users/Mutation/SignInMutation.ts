@@ -10,22 +10,14 @@ export default async function SignInMutation(
   {}
 ) {
   const { email, password } = input;
-  
   const user: SignInInput = await knx("users").where({ email }).first();
-
   if (!user) {
     throw new GraphQLError(`User does not exist!`);
   }
-
   const checkPassword = compareSync(password, user.password);
-
   if (!checkPassword) {
     throw new GraphQLError(`password is incorrect`);
   }
-
   const token = sign(user, process.env.SECRET_KEY);
-
-  return {
-    token,
-  };
+  return {token};
 }
